@@ -1,4 +1,4 @@
-//https://github.com/beyondscreen/node-rpi-ws281x-native/blob/master/examples/brightness.js
+//https://github.com/beyondscreen/node-rpi-ws281x-native/blob/master/examples/iterate.js
 import * as ws281x from 'rpi-ws281x-native'
 
 const NUM_LEDS = parseInt(process.argv[2], 10) || 10
@@ -10,19 +10,20 @@ ws281x.init(NUM_LEDS)
 process.on('SIGINT', () => {
   ws281x.reset()
   process.nextTick(() => { process.exit(0) })
-})
+});
 
-for (var i = 0; i < NUM_LEDS; i++) {
-  pixelData[i] = 0xffcc22
-}
-ws281x.render(pixelData);
 
 // ---- animation-loop
-const t0 = Date.now()
+let offset = 0
 setInterval(() => {
-  const dt = Date.now() - t0
+  let i = NUM_LEDS
+  while (i--) {
+    pixelData[i] = 0
+  }
+  pixelData[offset] = 0xffffff
 
-  ws281x.setBrightness(Math.floor(Math.sin(dt / 1000) * 128 + 128))
-}, 1000 / 30)
+  offset = (offset + 1) % NUM_LEDS
+  ws281x.render(pixelData)
+}, 100)
 
 console.log('Press <ctrl>+C to exit.')
